@@ -1,1 +1,11 @@
 venv/
+data/raw/*.csv
+data/images/bundles/*.jpg
+data/images/products/*.jpg
+data/embeddings/*.pkl
+data/embeddings/*.npy
+
+
+!data/images/bundles/.gitkeep
+!data/images/products/.gitkeep
+!data/embeddings/.gitkeep
