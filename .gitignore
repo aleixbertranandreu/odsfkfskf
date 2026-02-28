@@ -9,3 +9,6 @@ data/embeddings/*.npy
 !data/images/bundles/.gitkeep
 !data/images/products/.gitkeep
 !data/embeddings/.gitkeep
+
+*.pt
+__pycache__/
