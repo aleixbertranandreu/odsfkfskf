@@ -66,12 +66,28 @@ class InditexPairDataset(Dataset):
         # Verify images exist
         print("🔍 Verifying images exist...")
         valid_rows = []
-        for _, row in self.df.iterrows():
+        first_mismatch = None
+        
+        for i, row in self.df.iterrows():
             b_path = os.path.join(bundles_dir, f"{row['bundle_asset_id']}.jpg")
             p_path = os.path.join(products_dir, f"{row['product_asset_id']}.jpg")
-            if os.path.exists(b_path) and os.path.exists(p_path):
+            
+            b_exists = os.path.exists(b_path)
+            p_exists = os.path.exists(p_path)
+            
+            if b_exists and p_exists:
                 valid_rows.append(row)
+            else:
+                if first_mismatch is None:
+                    first_mismatch = (b_path, b_exists, p_path, p_exists)
         
+        if not valid_rows and first_mismatch:
+            b_p, b_e, p_p, p_e = first_mismatch
+            print(f"⚠️ Debug: Tried to find pairs but failed.")
+            print(f"   Bundle Path Example: {b_p} ({'OK' if b_e else 'MISSING'})")
+            print(f"   Product Path Example: {p_p} ({'OK' if p_e else 'MISSING'})")
+            print(f"   Check if folder structure or file extensions match.")
+
         self.df = pd.DataFrame(valid_rows)
         print(f"📦 Valid training pairs: {len(self.df)}")
 
