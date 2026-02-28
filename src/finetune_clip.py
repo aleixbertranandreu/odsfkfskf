@@ -120,14 +120,24 @@ class InfoNCELoss(nn.Module):
 
 def train_clip(args):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    train_csv = os.path.join(BASE_DIR, "data", "raw", "bundles_product_match_train.csv")
-    bundles_dir = os.path.join(BASE_DIR, "data", "images", "bundles")
-    products_dir = os.path.join(BASE_DIR, "data", "images", "products")
     
+    # Use CLI args if provided, otherwise fallback to default structure
+    train_csv = args.train_csv or os.path.join(BASE_DIR, "data", "raw", "bundles_product_match_train.csv")
+    bundles_dir = args.bundles_dir or os.path.join(BASE_DIR, "data", "images", "bundles")
+    products_dir = args.products_dir or os.path.join(BASE_DIR, "data", "images", "products")
+    
+    if not os.path.exists(train_csv):
+        print(f"❌ Error: CSV de entrenamiento no encontrado en {train_csv}")
+        return
+        
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"🚀 Elite Fine-tuning on device: {device}")
+    print(f"   CSV: {train_csv}")
+    print(f"   Bundles: {bundles_dir}")
+    print(f"   Products: {products_dir}")
     
     # ─── LOAD MODEL ───
+    # ... rest remains identical ...
     print(f"🧠 Loading base model: {args.model_name}")
     model = CLIPModel.from_pretrained(args.model_name).to(device)
     
@@ -255,6 +265,12 @@ if __name__ == "__main__":
     parser.add_argument("--weight_decay", type=float, default=1e-3)
     parser.add_argument("--unfreeze_layers", type=int, default=4)
     parser.add_argument("--save_every", type=int, default=50)
+    
+    # Data paths
+    parser.add_argument("--train_csv", type=str, default=None)
+    parser.add_argument("--bundles_dir", type=str, default=None)
+    parser.add_argument("--products_dir", type=str, default=None)
+    
     args = parser.parse_args()
     
     train_clip(args)
