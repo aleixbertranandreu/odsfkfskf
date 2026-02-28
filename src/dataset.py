@@ -22,33 +22,23 @@ from torchvision import transforms
 
 def get_train_transform(img_size: int = 224):
     """
-    Aggressive augmentation simulating bundle (street) photo conditions:
-    - RandomResizedCrop: simulate partial visibility / different distances
-    - ColorJitter: outdoor lighting variance (shadows, overcast, indoor)
-    - RandomPerspective: different camera angles
-    - GaussianBlur: motion blur / camera shake
-    - RandomErasing: simulate occlusion by other garments or accessories
+    Streamlined augmentation for maximum GPU throughput (avoiding CPU bottleneck).
+    Removed ColorJitter, Blur, and Perspective as they starve the GPU on large datasets.
     """
     return transforms.Compose([
-        transforms.RandomResizedCrop(img_size, scale=(0.6, 1.0), ratio=(0.75, 1.33)),
+        transforms.RandomResizedCrop(
+            img_size, 
+            scale=(0.7, 1.0), 
+            ratio=(0.8, 1.2),
+            interpolation=transforms.InterpolationMode.BILINEAR
+        ),
         transforms.RandomHorizontalFlip(p=0.5),
-        transforms.RandomApply([
-            transforms.ColorJitter(
-                brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1
-            )
-        ], p=0.8),
-        transforms.RandomApply([
-            transforms.RandomPerspective(distortion_scale=0.2)
-        ], p=0.3),
-        transforms.RandomApply([
-            transforms.GaussianBlur(kernel_size=5, sigma=(0.1, 2.0))
-        ], p=0.3),
         transforms.ToTensor(),
         transforms.Normalize(
             mean=[0.485, 0.456, 0.406],
             std=[0.229, 0.224, 0.225]
         ),
-        transforms.RandomErasing(p=0.3, scale=(0.02, 0.2)),
+        transforms.RandomErasing(p=0.5, scale=(0.02, 0.2)), # Fast tensor-level occlusion
     ])
 
 
