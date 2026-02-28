@@ -116,11 +116,11 @@ def train(args):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
     # ─── Paths ───
-    matches_csv = os.path.join(BASE_DIR, "data", "raw", "bundles_product_match_train.csv")
+    matches_csv = args.train_csv if getattr(args, 'train_csv', None) else os.path.join(BASE_DIR, "data", "raw", "bundles_product_match_train.csv")
     products_csv = os.path.join(BASE_DIR, "data", "raw", "product_dataset.csv")
     bundles_csv = os.path.join(BASE_DIR, "data", "raw", "bundles_dataset.csv")
-    product_images = os.path.join(BASE_DIR, "data", "images", "products")
-    bundle_images = os.path.join(BASE_DIR, "data", "images", "bundles")
+    product_images = args.products_dir if getattr(args, 'products_dir', None) else os.path.join(BASE_DIR, "data", "images", "products")
+    bundle_images = args.bundles_dir if getattr(args, 'bundles_dir', None) else os.path.join(BASE_DIR, "data", "images", "bundles")
     checkpoint_dir = os.path.join(BASE_DIR, "checkpoints")
     os.makedirs(checkpoint_dir, exist_ok=True)
     
@@ -322,6 +322,9 @@ def parse_args():
     
     # DataLoader
     parser.add_argument("--num_workers", type=int, default=4, help="DataLoader workers")
+    parser.add_argument("--train_csv", type=str, default=None)
+    parser.add_argument("--products_dir", type=str, default=None)
+    parser.add_argument("--bundles_dir", type=str, default=None)
     
     # Debug
     parser.add_argument("--quick_test", action="store_true", help="Quick 2-epoch smoke test")

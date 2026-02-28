@@ -23,15 +23,15 @@ class FashionEmbedder(nn.Module):
     def __init__(self, embed_dim: int = 256, pretrained: bool = True):
         super().__init__()
         
-        # Load ConvNeXt-Tiny with best available pretrained weights
+        # Load ConvNeXt-Base with best available pretrained weights for cloud GPU
         if pretrained:
-            weights = models.ConvNeXt_Tiny_Weights.IMAGENET1K_V1
-            self.backbone = models.convnext_tiny(weights=weights)
+            weights = models.ConvNeXt_Base_Weights.IMAGENET1K_V1
+            self.backbone = models.convnext_base(weights=weights)
         else:
-            self.backbone = models.convnext_tiny(weights=None)
+            self.backbone = models.convnext_base(weights=None)
         
-        # ConvNeXt-Tiny feature dim = 768
-        backbone_dim = 768
+        # ConvNeXt-Base feature dim = 1024
+        backbone_dim = 1024
         
         # Remove the original classification head
         self.backbone.classifier = nn.Identity()
