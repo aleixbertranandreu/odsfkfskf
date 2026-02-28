@@ -58,9 +58,10 @@ def collate_fn(batch):
 
 def build_index(args):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    product_images = os.path.join(BASE_DIR, "data", "images", "products")
+    product_images = args.products_dir if args.products_dir else os.path.join(BASE_DIR, "data", "images", "products")
     embeddings_dir = os.path.join(BASE_DIR, "data", "embeddings")
     os.makedirs(embeddings_dir, exist_ok=True)
+
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"🚀 Building CLIP index on: {device} with AMP")
@@ -155,5 +156,7 @@ if __name__ == "__main__":
     parser.add_argument("--custom_weights", type=str, default=None, help="Path to fine-tuned .pt weights")
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--num_workers", type=int, default=4)
+    parser.add_argument("--products_dir", type=str, default=None, help="Custom folder for products")
     args = parser.parse_args()
     build_index(args)
+

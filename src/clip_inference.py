@@ -134,7 +134,7 @@ def run_inference(args):
     test_csv = os.path.join(BASE_DIR, "data", "raw", "bundles_product_match_test.csv")
     bundles_csv = os.path.join(BASE_DIR, "data", "raw", "bundles_dataset.csv")
     products_csv = os.path.join(BASE_DIR, "data", "raw", "product_dataset.csv")
-    bundle_images_dir = os.path.join(BASE_DIR, "data", "images", "bundles")
+    bundle_images_dir = args.bundles_dir if args.bundles_dir else os.path.join(BASE_DIR, "data", "images", "bundles")
     embeddings_dir = os.path.join(BASE_DIR, "data", "embeddings")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -375,6 +375,7 @@ def parse_args():
                         help="Ensemble CLIP (70%) + ConvNeXt (30%)")
     parser.add_argument("--top_k", type=int, default=100)
     parser.add_argument("--evaluate", action="store_true")
+    parser.add_argument("--bundles_dir", type=str, default=None, help="Custom folder for bundles")
 
     args = parser.parse_args()
     if args.no_multicrop:
