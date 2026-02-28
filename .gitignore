@@ -22,3 +22,6 @@ __pycache__/
 # Índices FAISS
 *.index
 *.bin
+
+#zip del data para trabajar en la nube
+data_clean.zip
