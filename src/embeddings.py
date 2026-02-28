@@ -8,17 +8,19 @@ import pickle
 from PIL import Image
 import pandas as pd
 
+from constants import (
+    PRODUCTS_IMAGES_DIR,
+    PRODUCTS_DATASET_CSV,
+    OUTPUT_EMBEDDINGS,
+    OUTPUT_IDS,
+    OUTPUT_DESCRIPTIONS,
+    DEVICE
+)
+
 # -----------------------------
 # CONFIG
 # -----------------------------
-PRODUCTS_IMAGES_DIR = Path("../data/images/products")
-PRODUCTS_DATASET_CSV = Path("../data/raw/product_dataset.csv")
-OUTPUT_EMBEDDINGS = "products_clip_embeddings.npy"
-OUTPUT_IDS = "products_ids.pkl"
-OUTPUT_DESCRIPTIONS = "products_descriptions.pkl"
-
 BATCH_SIZE = 32
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # -----------------------------
 # 1️⃣ Cargar modelo CLIP
@@ -36,7 +38,7 @@ print("Modelo cargado en:", DEVICE)
 # 2️⃣ Cargar dataset con descripciones
 # -----------------------------
 products_df = pd.read_csv(PRODUCTS_DATASET_CSV)
-product_descriptions_dict = dict(zip(products_df["image"], products_df["product_description"]))
+product_descriptions_dict = dict(zip(products_df["product_asset_id"], products_df["product_description"]))
 
 # -----------------------------
 # 3️⃣ Recorrer imágenes
