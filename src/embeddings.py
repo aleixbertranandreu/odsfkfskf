@@ -74,7 +74,13 @@ for i in tqdm(range(0, len(image_paths), BATCH_SIZE), desc="Procesando productos
         img_clip = preprocess(img_pil)
         images.append(img_clip)
         all_ids.append(path.name)
-        all_descriptions.append(product_descriptions_dict.get(path.name, "unknown"))
+        all_descriptions.append(
+            product_descriptions_dict.get(path.stem, "unknown")
+        )
+        
+        print("path.stem:", path.stem)
+        print("Existe en dict:", path.stem in product_descriptions_dict)
+        break
 
     if len(images) == 0:
         continue
