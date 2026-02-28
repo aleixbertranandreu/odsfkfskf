@@ -17,7 +17,7 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.cuda.amp import GradScaler, autocast
+from torch.amp import GradScaler, autocast
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader, random_split
 
@@ -226,7 +226,7 @@ def train(args):
             positive = positive.to(device, non_blocking=True)
             negative = negative.to(device, non_blocking=True)
             
-            with autocast():
+            with torch.amp.autocast('cuda'):
                 a_emb = model(anchor)
                 p_emb = model(positive)
                 n_emb = model(negative)
