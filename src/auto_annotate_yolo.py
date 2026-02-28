@@ -92,16 +92,18 @@ def main():
             results = processor.post_process_grounded_object_detection(
                 outputs,
                 inputs.input_ids,
-                box_threshold=CONFIDENCE_THRESHOLD,
                 text_threshold=CONFIDENCE_THRESHOLD,
                 target_sizes=[pil_img.size[::-1]]
             )[0]
             
-            # Convert boxes to YOLO format
-            for box in results["boxes"]:
+            # Convert boxes to YOLO format (filtering by box_threshold manually just in case)
+            for box, score in zip(results["boxes"], results["scores"]):
+                if score < CONFIDENCE_THRESHOLD:
+                    continue
                 yolo_box = get_yolo_format(box.cpu().numpy(), img_w, img_h)
                 # Format: class_id x_center y_center width height
                 yolo_labels.append(f"{class_id} {yolo_box[0]:.6f} {yolo_box[1]:.6f} {yolo_box[2]:.6f} {yolo_box[3]:.6f}")
+
         
         # If we found objects, save the image copy and the label file
         if yolo_labels:
