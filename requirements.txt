@@ -5,5 +5,5 @@ pandas>=2.0.0
 numpy>=1.24.0
 Pillow>=10.0.0
 tqdm>=4.65.0
-faiss-gpu>=1.7.4
+faiss-cpu>=1.7.4
 gdown>=5.1.0
