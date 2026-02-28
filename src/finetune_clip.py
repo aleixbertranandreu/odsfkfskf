@@ -45,15 +45,13 @@ class InditexPairDataset(Dataset):
         self.bundles_dir = bundles_dir
         self.products_dir = products_dir
         
-        # ─── 1 & 2. Aggressive Data Augmentation & Multi-Scale ───
+        # ─── 1 & 2. Data Augmentation (OPTIMIZED FOR SPEED) ───
         self.bundle_transform = transforms.Compose([
             CentralCropRatio(0.7),  # Central crop to ignore background/face
-            transforms.RandomAffine(degrees=15, translate=(0.1, 0.1), scale=(0.9, 1.1)), # Deform shape
-            transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1), # Destroy lighting
-            transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.BICUBIC),
+            transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.BILINEAR), # Faster than BICUBIC
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711]),
-            transforms.RandomErasing(p=0.5, scale=(0.02, 0.2), ratio=(0.3, 3.3), value='random'), # Occlusion / Cutout
+            transforms.RandomErasing(p=0.4, scale=(0.02, 0.2), ratio=(0.3, 3.3), value='random'), # Fast occlusion on Tensors
         ])
 
         # Product is usually clean flat-lay; apply only slight transforms to prevent overfitting
@@ -245,7 +243,7 @@ def train_clip(args):
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
-            scheduler.step()
+            scheduler.step()  # Fixed order: strictly after optimizer
             
             total_loss += loss.item()
             pbar.set_postfix({
