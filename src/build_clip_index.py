@@ -67,7 +67,7 @@ def build_index(args):
     print(f"🚀 Building CLIP index on: {device} with AMP")
 
     # Load CLIP
-    model_name = args.clip_model
+    model_name = args.model_name
     print(f"🧠 Loading base model {model_name}...")
     model = CLIPModel.from_pretrained(model_name).to(device)
     processor = CLIPProcessor.from_pretrained(model_name)
@@ -152,7 +152,7 @@ def build_index(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--clip_model", default="openai/clip-vit-large-patch14")
+    parser.add_argument("--model_name", default="patrickjohncyh/fashion-clip")
     parser.add_argument("--custom_weights", type=str, default=None, help="Path to fine-tuned .pt weights")
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--num_workers", type=int, default=4)

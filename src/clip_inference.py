@@ -141,7 +141,7 @@ def run_inference(args):
     print(f"🚀 CLIP Inference on: {device}")
 
     # ─── Load CLIP ───
-    model_name = args.clip_model
+    model_name = args.model_name
     print(f"🧠 Loading base model {model_name}...")
     model = CLIPModel.from_pretrained(model_name).to(device)
     processor = CLIPProcessor.from_pretrained(model_name)
@@ -365,7 +365,7 @@ def evaluate_mrr(results, base_dir):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="CLIP-based Visual Search")
-    parser.add_argument("--clip_model", default="openai/clip-vit-large-patch14")
+    parser.add_argument("--model_name", default="patrickjohncyh/fashion-clip")
     parser.add_argument("--custom_weights", type=str, default=None, help="Path to fine-tuned .pt weights")
     parser.add_argument("--multicrop", action="store_true", default=True,
                         help="Use multi-crop encoding (6 views)")
