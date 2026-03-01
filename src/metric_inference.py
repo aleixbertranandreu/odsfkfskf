@@ -51,11 +51,14 @@ class InferenceDataset(Dataset):
 # 2. Main Inference Flow
 # ----------------------------------------------------------------------
 def main(args):
+    print("🚀 Iniciando Inferencia del Especialista en Texturas (ConvNeXt)...")
     print("INFO: Iniciando Inferencia del Especialista en Texturas (ConvNeXt)...")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"   Utilizando dispositivo: {device}")
     
     # 1. Load Model
+    print(f"\n📦 Cargando pesos de {args.weights}...")
+    checkpoint = torch.load(args.weights, map_location=device)
     print(f"\n Cargando pesos de {args.weights}...")
     checkpoint = torch.load(args.weights, map_location=device, weights_only=False)
     
@@ -69,6 +72,7 @@ def main(args):
     model.eval()
     
     # 2. Extract Product Features
+    print("\n👕 Extrayendo embeddings del Catálogo de Productos...")
     print("\n Extrayendo embeddings del Catálogo de Productos...")
     df_products = pd.read_csv(args.products_csv)
     # Only keep products that actually have images
@@ -96,6 +100,7 @@ def main(args):
     prod_embeddings = np.vstack(prod_embeddings).astype('float32')
     
     # 3. Build FAISS Index
+    print(f"\n🧠 Construyendo índice FAISS con {len(prod_embeddings)} productos...")
     print(f"\n Construyendo índice FAISS con {len(prod_embeddings)} productos...")
     faiss.normalize_L2(prod_embeddings)  # Cosine similarity requires L2 normalization
     dim = prod_embeddings.shape[1]
@@ -105,6 +110,7 @@ def main(args):
     index.add(prod_embeddings)
     
     # 4. Extract Bundle Features
+    print("\n👗 Extrayendo embeddings de los Test Bundles...")
     print("\n Extrayendo embeddings de los Test Bundles...")
     df_test = pd.read_csv(args.test_csv)
     test_bundles = df_test['bundle_asset_id'].unique().tolist()
@@ -128,6 +134,11 @@ def main(args):
     faiss.normalize_L2(bundle_embeddings)
     
     # 5. Search Top 60 (We request 60 so RRF has plenty of candidates to overlap)
+    print(f"\n🔍 Buscando los Top {args.top_k} matches para cada Bundle...")
+    distances, indices = index.search(bundle_embeddings, args.top_k)
+    
+    # 6. Generate CSV
+    print("\n📝 Escribiendo submission CSV...")
     print(f"\n Buscando los Top {args.top_k} matches para cada Bundle...")
     distances, indices = index.search(bundle_embeddings, args.top_k)
     
@@ -145,6 +156,7 @@ def main(args):
             
     df_submission = pd.DataFrame(results)
     df_submission.to_csv(args.output, index=False)
+    print(f"🎉 ÉXITO: Archivo guardado en {args.output}")
     print(f"INFO: SUCCESS: Archivo guardado en {args.output}")
 
 if __name__ == "__main__":

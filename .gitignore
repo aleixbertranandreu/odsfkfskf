@@ -26,6 +26,15 @@ __pycache__/
 #zip del data para trabajar en la nube
 data_clean.zip
 
+# Backend Images
+backend/data_clean/images/
+backend/data_clean/embeddings/
+*.npy
+*.pt
+*.jpg
+*.png
+*.webp
+
 # yolo
 data/inditex_yolo.yaml
 data/product_color_hists.json
