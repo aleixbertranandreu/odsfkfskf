@@ -114,7 +114,7 @@ sequenceDiagram
 
 ## Trabajo Futuro
 
-Debido a las estrictas limitaciones de tiempo inherentes a un formato de hackathon de 24/48 horas, varias ideas prometedoras quedaron en el tintero. Nuestro roadmap de mejoras incluye:
+Debido a las estrictas limitaciones de tiempo inherentes a un formato de hackathon de 36 horas, varias ideas prometedoras quedaron en el tintero. Nuestro roadmap de mejoras incluye:
 
 1. **Self-Supervised Pre-training Extendido**: Aprovechar la inmensa cantidad de imágenes sin etiquetar del catálogo para pre-entrenar con DINOv2 / MAE antes del fine-tuning contrastivo.
 2. **Atención Multimodal**: Incorporar metadata de texto (descripción del producto, color, material) fusionando las representaciones de texto y visión de CLIP.
