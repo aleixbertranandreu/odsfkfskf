@@ -1,6 +1,13 @@
 # Visual Search con Fashion-CLIP 👔✨
 **Sistema de Recuperación de Imágenes de Moda usando IA Contrastiva**
 
+<p align="center">
+  <img src="https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white" alt="PyTorch">
+  <img src="https://img.shields.io/badge/Hugging%20Face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=000" alt="Hugging Face">
+  <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" alt="Python">
+  <img src="https://img.shields.io/badge/YOLO-01B1EC?style=for-the-badge&logo=yolo&logoColor=white" alt="YOLOv8">
+</p>
+
 ## Overview del Proyecto
 
 Este repositorio contiene el código fuente para una solución avanzada de **Visual Search** diseñada durante la HackUDC 2026. El objetivo principal de este proyecto es resolver el desafío de encontrar prendas de ropa similares dentro de un inmenso catálogo de imágenes, un problema fundamental en el sector e-commerce (Retail/Fashion).
@@ -83,16 +90,27 @@ Aunque el núcleo del reto era puramente algorítmico, como reto personal y para
 - **Frontend (Mobile-First)**: Una interfaz premium, *clean* y minimalista que permite a los usuarios abrir la cámara de su móvil, escanear una prenda por la calle y recibir recomendaciones al instante.
 - **Backend**: Una API REST rápida que conecta nuestro cliente web con el índice vectorial FAISS y nuestro modelo CLIP entrenado, procesando las inferencias visuales en tiempo real.
 
-### 📸 UI Previews
+### 🧠 System Architecture Flow
 
-Aquí puedes ver el flujo de la aplicación en funcionamiento:
+A continuación se detalla el ciclo de vida de una petición de búsqueda visual dentro de la aplicación, ilustrando cómo intervienen los distintos modelos de IA:
 
-<p align="center">
-  <img src="./docs/assets/scan_ui.png" width="45%" alt="Visual Scan UI" />
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="./docs/assets/results_ui.png" width="45%" alt="Search Results UI" />
-</p>
-<br/>
+```mermaid
+sequenceDiagram
+    participant User as 📱 Usuario (WebApp)
+    participant API as 🌐 REST API
+    participant YOLO as 👁️ YOLOv8 (Detector)
+    participant CLIP as 🧠 Fashion-CLIP
+    participant FAISS as 🗄️ FAISS Index
+
+    User->>API: 1. Sube foto de una prenda
+    API->>YOLO: 2. Envía imagen para detección de ropa
+    YOLO-->>API: 3. Devuelve "crop" delimitando la prenda (sin fondo)
+    API->>CLIP: 4. Manda el crop al modelo visual
+    CLIP-->>API: 5. Genera Embedding Normalizado (512d)
+    API->>FAISS: 6. Fast K-NN Search (Cosine Sim.)
+    FAISS-->>API: 7. Retorna los Top-K IDs más similares del catálogo
+    API-->>User: 8. Renderiza productos recomendados
+```
 
 ## Trabajo Futuro
 
