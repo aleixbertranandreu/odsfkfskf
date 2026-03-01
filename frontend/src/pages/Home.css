@@ -1,0 +1,215 @@
+.home-hero {
+    position: relative;
+    height: 85vh;
+    min-height: 500px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-hero img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+}
+
+.home-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.05) 0%,
+            rgba(0, 0, 0, 0.35) 100%);
+}
+
+.home-hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: white;
+    padding: var(--space-xl);
+}
+
+.home-hero-content h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 300;
+    letter-spacing: 0.06em;
+    margin-bottom: var(--space-md);
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+.home-hero-content p {
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--space-2xl);
+    opacity: 0.9;
+}
+
+.home-hero-content .btn {
+    border-color: white;
+    color: white;
+}
+
+.home-hero-content .btn:hover {
+    background: white;
+    color: var(--color-text);
+}
+
+/* Categories */
+.home-categories {
+    padding: var(--space-5xl) 0 var(--space-3xl);
+}
+
+.home-section-title {
+    text-align: center;
+    margin-bottom: var(--space-3xl);
+}
+
+.home-section-title h2 {
+    margin-bottom: var(--space-sm);
+}
+
+.home-section-title p {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--space-xl);
+}
+
+.category-card {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    background: var(--color-bg-alt);
+    cursor: pointer;
+}
+
+.category-card img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+}
+
+.category-card:hover img {
+    transform: scale(1.05);
+}
+
+.category-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, transparent 50%);
+}
+
+.category-card-label {
+    position: relative;
+    z-index: 1;
+    padding: var(--space-lg);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+/* New Arrivals */
+.home-arrivals {
+    padding: var(--space-3xl) 0;
+}
+
+.arrivals-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--space-xl);
+}
+
+/* Scan Banner */
+.home-scan-banner {
+    max-width: var(--max-width);
+    margin: var(--space-4xl) auto var(--space-3xl);
+    padding: 0 var(--space-xl);
+}
+
+.scan-banner-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3xl) var(--space-4xl);
+    background: var(--color-text);
+    color: var(--color-bg);
+    gap: var(--space-2xl);
+}
+
+.scan-banner-text h2 {
+    color: var(--color-bg);
+    margin-bottom: var(--space-md);
+}
+
+.scan-banner-text p {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    max-width: 500px;
+}
+
+.scan-banner-inner .btn {
+    border-color: var(--color-bg);
+    color: var(--color-bg);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.scan-banner-inner .btn:hover {
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+@media (max-width: 1024px) {
+
+    .categories-grid,
+    .arrivals-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .home-hero {
+        height: 70vh;
+        min-height: 400px;
+    }
+
+    .categories-grid,
+    .arrivals-grid {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 0 var(--space-md);
+        gap: var(--space-sm);
+    }
+
+    .scan-banner-inner {
+        flex-direction: column;
+        text-align: center;
+        padding: var(--space-2xl) var(--space-xl);
+    }
+
+    .home-scan-banner {
+        padding: 0 var(--space-md);
+    }
+}

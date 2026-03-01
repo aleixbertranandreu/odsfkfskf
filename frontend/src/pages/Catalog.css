@@ -1,0 +1,209 @@
+.catalog-page {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--space-2xl) var(--space-xl);
+}
+
+.catalog-header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+}
+
+.catalog-header h1 {
+    margin-bottom: var(--space-sm);
+}
+
+.catalog-header p {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+/* Toolbar */
+.catalog-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-bottom: var(--space-2xl);
+    flex-wrap: wrap;
+}
+
+.catalog-search {
+    position: relative;
+    flex: 1;
+    max-width: 360px;
+}
+
+.catalog-search input {
+    width: 100%;
+    padding: 10px 14px 10px 36px;
+    font-size: 0.8rem;
+    border: 1px solid var(--color-border);
+}
+
+.catalog-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    pointer-events: none;
+}
+
+.catalog-controls {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+}
+
+.catalog-sort select {
+    padding: 10px 30px 10px 14px;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    appearance: none;
+    background: var(--color-surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23767676' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+    cursor: pointer;
+}
+
+.filter-toggle {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.filter-toggle:hover {
+    border-color: var(--color-accent);
+}
+
+.catalog-count {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+}
+
+/* Layout */
+.catalog-layout {
+    display: flex;
+    gap: var(--space-2xl);
+}
+
+/* Sidebar Filters */
+.catalog-filters {
+    width: 240px;
+    flex-shrink: 0;
+    padding-right: var(--space-xl);
+    border-right: 1px solid var(--color-border-light);
+}
+
+.catalog-filters.hidden {
+    display: none;
+}
+
+.filter-group {
+    margin-bottom: var(--space-xl);
+}
+
+.filter-group h4 {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-md);
+    color: var(--color-text);
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 6px 0;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    transition: color var(--transition-fast);
+}
+
+.filter-option:hover {
+    color: var(--color-text);
+}
+
+.filter-option input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--color-accent);
+    cursor: pointer;
+    padding: 0;
+}
+
+.filter-option.active {
+    color: var(--color-text);
+    font-weight: 500;
+}
+
+/* Product Grid */
+.catalog-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+}
+
+.catalog-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: var(--space-4xl) var(--space-xl);
+}
+
+.catalog-empty h3 {
+    margin-bottom: var(--space-sm);
+}
+
+.catalog-empty p {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+@media (max-width: 1024px) {
+    .catalog-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .catalog-page {
+        padding: var(--space-lg) var(--space-md);
+    }
+
+    .catalog-layout {
+        flex-direction: column;
+    }
+
+    .catalog-filters {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border-light);
+        padding-right: 0;
+        padding-bottom: var(--space-xl);
+        margin-bottom: var(--space-xl);
+    }
+
+    .catalog-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md);
+    }
+
+    .catalog-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .catalog-search {
+        max-width: 100%;
+    }
+}
