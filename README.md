@@ -76,6 +76,24 @@ Genera el archivo CSV final con las recomendaciones priorizadas:
 python src/final_inference.py --index_path faiss_index.index --output submission_final.csv
 ```
 
+## 🚀 Additional Features: Full-Stack Visual Search Web App
+
+Aunque el núcleo del reto era puramente algorítmico, como reto personal y para darle una vida real al modelo, **desarrollamos un Front-End y Back-End funcional**. Hemos desplegado un entorno web estilo e-commerce (muy al estilo del ecosistema Inditex) para que la experiencia de Visual Search pueda ser testeada en la vida real mediante una Mobile Web App.
+
+- **Frontend (Mobile-First)**: Una interfaz premium, *clean* y minimalista que permite a los usuarios abrir la cámara de su móvil, escanear una prenda por la calle y recibir recomendaciones al instante.
+- **Backend**: Una API REST rápida que conecta nuestro cliente web con el índice vectorial FAISS y nuestro modelo CLIP entrenado, procesando las inferencias visuales en tiempo real.
+
+### 📸 UI Previews
+
+Aquí puedes ver el flujo de la aplicación en funcionamiento:
+
+<div align="center">
+  <img src="docs/assets/scan_ui.png" width="45%" alt="Visual Scan UI" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="docs/assets/results_ui.png" width="45%" alt="Search Results UI" />
+</div>
+<br/>
+
 ## Trabajo Futuro
 
 Debido a las estrictas limitaciones de tiempo inherentes a un formato de hackathon de 24/48 horas, varias ideas prometedoras quedaron en el tintero. Nuestro roadmap de mejoras incluye:
