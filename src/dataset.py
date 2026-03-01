@@ -127,7 +127,7 @@ class TripletFashionDataset(Dataset):
             if os.path.exists(os.path.join(product_images_dir, f"{pid}.jpg"))
         ]
         
-        print(f"📊 Dataset: {len(self.pairs)} valid pairs | "
+        print(f"INFO: Dataset: {len(self.pairs)} valid pairs | "
               f"{len(self.all_product_ids)} products with images | "
               f"{len(self.category_to_products)} categories")
     
@@ -207,7 +207,7 @@ class CatalogDataset(Dataset):
             if os.path.exists(path):
                 self.items.append((pid, path))
         
-        print(f"📦 Catalog: {len(self.items)} products ready for indexing")
+        print(f"INFO: Catalog: {len(self.items)} products ready for indexing")
     
     def __len__(self):
         return len(self.items)

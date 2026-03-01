@@ -16,9 +16,9 @@ import open_clip
 
 def build_index(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"🚀 Device: {device}")
+    print(f"INFO: Device: {device}")
     
-    print(f"🧠 Loading {args.model_name}...")
+    print(f" Loading {args.model_name}...")
     model, _, preprocess = open_clip.create_model_and_transforms(
         args.model_name, pretrained=args.pretrained, device=device
     )
@@ -27,7 +27,7 @@ def build_index(args):
     images_dir = os.path.join(args.base_dir, "data", "images", "products")
     all_files = sorted(glob.glob(os.path.join(images_dir, "*.jpg"))) + sorted(glob.glob(os.path.join(images_dir, "*.png")))
     all_files = sorted(set(all_files))
-    print(f"📦 Found {len(all_files)} product images")
+    print(f"INFO: Found {len(all_files)} product images")
 
     chunk_dir = os.path.join(args.base_dir, "data", "embeddings", "openclip_chunks")
     os.makedirs(chunk_dir, exist_ok=True)
@@ -38,7 +38,7 @@ def build_index(args):
         with open(f, 'rb') as pkl:
             processed_ids.update(pickle.load(pkl))
             
-    print(f"🔄 Resuming... {len(processed_ids)} already processed")
+    print(f" Resuming... {len(processed_ids)} already processed")
     
     pending_files = [f for f in all_files if os.path.splitext(os.path.basename(f))[0] not in processed_ids]
     print(f"⏳ {len(pending_files)} pending images")
@@ -87,7 +87,7 @@ def build_index(args):
                 
                 elapsed = time.time() - start
                 rate = (batch_start + batch_size) / elapsed if elapsed > 0 else 0
-                print(f"  💾 Saved chunk {chunk_idx}: {len(chunk_ids)} imgs ({rate:.1f} img/s overall)")
+                print(f"  INFO: Saved to Saved chunk {chunk_idx}: {len(chunk_ids)} imgs ({rate:.1f} img/s overall)")
                 
                 chunk_embeddings = []
                 chunk_ids = []
@@ -96,7 +96,7 @@ def build_index(args):
                 # Clear CUDA cache if needed
                 torch.cuda.empty_cache()
 
-    print(f"\n✅ Encoding complete. Building final FAISS index...")
+    print(f"\nINFO: SUCCESS: Encoding complete. Building final FAISS index...")
     
     all_embs = []
     all_idx = []
@@ -123,10 +123,10 @@ def build_index(args):
     with open(os.path.join(emb_dir, f"openclip_ids_{suffix}.pkl"), 'wb') as f:
         pickle.dump(all_idx, f)
         
-    print(f"📉 Removing temp chunks...")
+    print(f" Removing temp chunks...")
     shutil.rmtree(chunk_dir)
 
-    print(f"🎉 Done! Index built with {index.ntotal} items x {dim} dims")
+    print(f"INFO: Done! Index built with {index.ntotal} items x {dim} dims")
 
 
 if __name__ == "__main__":

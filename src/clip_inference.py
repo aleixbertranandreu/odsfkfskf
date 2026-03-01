@@ -138,32 +138,32 @@ def run_inference(args):
     embeddings_dir = os.path.join(BASE_DIR, "data", "embeddings")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"🚀 CLIP Inference on: {device}")
+    print(f"INFO: CLIP Inference on: {device}")
 
     # ─── Load CLIP ───
     model_name = args.model_name
-    print(f"🧠 Loading base model {model_name}...")
+    print(f" Loading base model {model_name}...")
     model = CLIPModel.from_pretrained(model_name).to(device)
     processor = CLIPProcessor.from_pretrained(model_name)
     
     if getattr(args, 'custom_weights', None):
-        print(f"🔄 Loading CUSTOM fine-tuned weights from {args.custom_weights}...")
+        print(f" Loading CUSTOM fine-tuned weights from {args.custom_weights}...")
         checkpoint = torch.load(args.custom_weights, map_location=device, weights_only=False)
         model.load_state_dict(checkpoint['model_state_dict'])
-        print("✅ Custom weights loaded successfully!")
+        print("INFO: SUCCESS: Custom weights loaded successfully!")
         
     model.eval()
-    print(f"   ✅ CLIP loaded")
+    print(f"    CLIP loaded")
 
     # ─── Load FAISS Index ───
     suffix = model_name.replace("/", "_").replace("-", "_")
     faiss_path, ids_path = find_clip_index(embeddings_dir, suffix)
 
     if not faiss_path or not os.path.exists(faiss_path):
-        print(f"❌ No CLIP FAISS index found. Run build_clip_index.py first!")
+        print(f"ERROR: No CLIP FAISS index found. Run build_clip_index.py first!")
         sys.exit(1)
 
-    print(f"📦 Loading index: {os.path.basename(faiss_path)}")
+    print(f"INFO: Loading index: {os.path.basename(faiss_path)}")
     index = faiss.read_index(faiss_path)
     with open(ids_path, 'rb') as f:
         product_ids = pickle.load(f)
@@ -181,7 +181,7 @@ def run_inference(args):
     convnext_faiss = os.path.join(embeddings_dir, "faiss_index.bin")
     convnext_ids = os.path.join(embeddings_dir, "product_ids.pkl")
     if args.ensemble and os.path.exists(convnext_faiss):
-        print(f"🔗 Loading ConvNeXt index for ensemble...")
+        print(f" Loading ConvNeXt index for ensemble...")
         ensemble_index = faiss.read_index(convnext_faiss)
         with open(convnext_ids, 'rb') as f:
             ensemble_ids = pickle.load(f)
@@ -199,9 +199,9 @@ def run_inference(args):
                 convnext_model = FashionEmbedder(embed_dim=chk.get('embed_dim', 256), pretrained=False).to(device)
                 convnext_model.load_state_dict(chk['model_state_dict'])
                 convnext_model.eval()
-                print(f"   ✅ ConvNeXt model loaded for ensemble")
+                print(f"    ConvNeXt model loaded for ensemble")
         except Exception as e:
-            print(f"   ⚠️ ConvNeXt not available: {e}")
+            print(f"   ️ ConvNeXt not available: {e}")
 
     # ─── Process Test Bundles ───
     df_test = pd.read_csv(test_csv)
@@ -209,7 +209,7 @@ def run_inference(args):
 
     mode = "multi-crop" if args.multicrop else "single"
     print(f"\n{'═'*60}")
-    print(f"🎯 Processing {len(bundle_ids)} test bundles")
+    print(f"INFO: Processing {len(bundle_ids)} test bundles")
     print(f"   Mode: {mode}")
     print(f"   Ensemble: {'ON' if args.ensemble and ensemble_index else 'OFF'}")
     print(f"{'═'*60}\n")
@@ -293,7 +293,7 @@ def run_inference(args):
         except Exception as e:
             errors += 1
             if errors <= 5:
-                print(f"  ❌ {bundle_id}: {e}")
+                print(f"  ERROR: {bundle_id}: {e}")
             results.append((bundle_id, product_ids[:15]))
 
         if (i + 1) % 25 == 0 or (i + 1) == len(bundle_ids):
@@ -304,12 +304,12 @@ def run_inference(args):
             print(f"  [{bar}] {pct:5.1f}% | {i+1}/{len(bundle_ids)} | {rate:.1f} b/s")
 
     total_time = time.time() - start_time
-    print(f"\n✅ Done! {len(bundle_ids)} bundles in {total_time:.1f}s")
+    print(f"\nINFO: SUCCESS: Done! {len(bundle_ids)} bundles in {total_time:.1f}s")
     if errors > 0:
-        print(f"   ⚠️ {errors} errors")
+        print(f"   ️ {errors} errors")
 
     # ─── Generate CSV ───
-    print("\n📝 Generating submission...")
+    print("\n Generating submission...")
     rows = []
     for bundle_id, top_15 in results:
         for pid in top_15:
@@ -323,7 +323,7 @@ def run_inference(args):
     df_sub.to_csv(output_path, index=False)
 
     n_bundles = df_sub['bundle_asset_id'].nunique()
-    print(f"💾 Saved: {output_path}")
+    print(f"INFO: Saved to Saved: {output_path}")
     print(f"   {len(df_sub)} rows | {n_bundles} bundles | {len(df_sub)//n_bundles} products/bundle")
 
     # ─── Evaluate ───
@@ -356,7 +356,7 @@ def evaluate_mrr(results, base_dir):
                     hit_at[k] += 1
 
     if total > 0:
-        print(f"\n🏆 MRR@15:  {mrr_sum/total:.4f}")
+        print(f"\nINFO: MRR@15:  {mrr_sum/total:.4f}")
         for k in sorted(hit_at):
             print(f"   Hit@{k}:  {hit_at[k]/total:.4f} ({hit_at[k]}/{total})")
     else:

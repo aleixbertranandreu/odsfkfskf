@@ -11,7 +11,7 @@ def safe_load(*args, **kwargs):
 torch.load = safe_load
 
 def main():
-    print("🚀 Iniciando el entrenamiento de YOLOv8 localmente...")
+    print("INFO: Iniciando el entrenamiento de YOLOv8 localmente...")
     
     # Load model
     model = YOLO("yolov8m.pt")
@@ -25,7 +25,7 @@ def main():
         device="cuda" if torch.cuda.is_available() else "cpu"
     )
     
-    print("✅ Entrenamiento completado. El mejor modelo estará en runs/detect/train/weights/best.pt")
+    print("INFO: SUCCESS: Entrenamiento completado. El mejor modelo estará en runs/detect/train/weights/best.pt")
 
 if __name__ == "__main__":
     main()

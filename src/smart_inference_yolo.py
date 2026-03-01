@@ -270,7 +270,7 @@ def run_pipeline(bundle_ids, bundle_images_dir, yolo_boxes, model, processor, de
         except Exception as e:
             errors += 1
             if errors <= 3:
-                print(f"  ❌ {bundle_id}: {e}")
+                print(f"  ERROR: {bundle_id}: {e}")
             results.append((bundle_id, all_product_ids[:15]))
 
         if (i + 1) % 50 == 0 or (i + 1) == len(bundle_ids):
@@ -278,13 +278,13 @@ def run_pipeline(bundle_ids, bundle_images_dir, yolo_boxes, model, processor, de
             rate = (i + 1) / elapsed if elapsed > 0 else 0
             print(f"  [{i+1}/{len(bundle_ids)}] {rate:.1f} b/s")
 
-    print(f"\n✅ {len(bundle_ids)} bundles in {time.time()-start_time:.1f}s | {errors} errors")
+    print(f"\nINFO: SUCCESS: {len(bundle_ids)} bundles in {time.time()-start_time:.1f}s | {errors} errors")
     return results
 
 
 def load_everything(args, base_dir):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"🚀 Device: {device}")
+    print(f"INFO: Device: {device}")
 
     # Load YOLO boxes
     yolo_file = os.path.join(base_dir, "data", "yolo_test_bboxes.json")
@@ -292,7 +292,7 @@ def load_everything(args, base_dir):
         raise FileNotFoundError(f"Missing {yolo_file}! Run extract_yolo_boxes.py first.")
     with open(yolo_file) as f:
         yolo_boxes = json.load(f)
-    print(f"📦 Loaded YOLO boxes for {len(yolo_boxes)} bundles")
+    print(f"INFO: Loaded YOLO boxes for {len(yolo_boxes)} bundles")
 
     metadata = build_metadata(base_dir)
 
@@ -301,7 +301,7 @@ def load_everything(args, base_dir):
     if args.custom_weights:
         ckpt = torch.load(args.custom_weights, map_location=device, weights_only=False)
         model.load_state_dict(ckpt['model_state_dict'])
-        print("  ✅ Custom weights!")
+        print("  INFO: SUCCESS: Custom weights!")
     model.eval()
 
     unique_cats = sorted(set(metadata["product_desc"].values()))
@@ -324,13 +324,13 @@ def run_test(args):
     test_ids = pd.read_csv(os.path.join(BASE, "data/raw/bundles_product_match_test.csv"))['bundle_asset_id'].tolist()
     bdir = args.bundles_dir or os.path.join(BASE, "data/images/bundles")
 
-    print(f"\n🎯 YOLO Inference: {len(test_ids)} TEST bundles")
+    print(f"\nINFO: YOLO Inference: {len(test_ids)} TEST bundles")
     results = run_pipeline(test_ids, bdir, yolo, model, proc, dev, idx, pids, embs, te, cl, ci, meta, args)
 
     out = os.path.join(BASE, args.output)
     rows = [{"bundle_asset_id": b, "product_asset_id": p} for b, t in results for p in t]
     pd.DataFrame(rows).to_csv(out, index=False)
-    print(f"💾 {out}")
+    print(f"INFO: Saved to {out}")
 
 
 if __name__ == "__main__":
