@@ -19,9 +19,9 @@ def main():
     yolo_path = os.path.join(BASE_DIR, "checkpoints", "inditex_yolov8m.pt")
     out_json = os.path.join(BASE_DIR, "data", "yolo_test_bboxes.json")
     
-    print("🚀 Loading Custom YOLOv8 for Inditex...")
+    print("INFO: Loading Custom YOLOv8 for Inditex...")
     if not os.path.exists(yolo_path):
-        print(f"❌ Error: YOLO weights not found at {yolo_path}")
+        print(f"ERROR: Error: YOLO weights not found at {yolo_path}")
         return
         
     model = YOLO(yolo_path)
@@ -29,7 +29,7 @@ def main():
     df_test = pd.read_csv(test_csv)
     bundle_ids = df_test['bundle_asset_id'].unique().tolist()
     
-    print(f"📦 Extracting boxes for {len(bundle_ids)} test bundles...")
+    print(f"INFO: Extracting boxes for {len(bundle_ids)} test bundles...")
     
     results_dict = {}
     
@@ -59,8 +59,8 @@ def main():
     with open(out_json, "w") as f:
         json.dump(results_dict, f, indent=2)
         
-    print(f"✅ Saved all bounding boxes to {out_json}")
-    print("➡️ Este archivo JSON se subirá a RunPod para que la A40 no tenga que calcular el YOLO, ¡división del trabajo perfecta!")
+    print(f"INFO: SUCCESS: Saved all bounding boxes to {out_json}")
+    print("INFO: Este archivo JSON se subirá a RunPod para que la A40 no tenga que calcular el YOLO, ¡división del trabajo perfecta!")
 
 if __name__ == "__main__":
     main()

@@ -52,12 +52,15 @@ class InferenceDataset(Dataset):
 # ----------------------------------------------------------------------
 def main(args):
     print("🚀 Iniciando Inferencia del Especialista en Texturas (ConvNeXt)...")
+    print("INFO: Iniciando Inferencia del Especialista en Texturas (ConvNeXt)...")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"   Utilizando dispositivo: {device}")
     
     # 1. Load Model
     print(f"\n📦 Cargando pesos de {args.weights}...")
     checkpoint = torch.load(args.weights, map_location=device)
+    print(f"\n Cargando pesos de {args.weights}...")
+    checkpoint = torch.load(args.weights, map_location=device, weights_only=False)
     
     # Handle both full state_dict or raw parameter dict
     embed_dim = checkpoint.get('embed_dim', 256)
@@ -70,6 +73,7 @@ def main(args):
     
     # 2. Extract Product Features
     print("\n👕 Extrayendo embeddings del Catálogo de Productos...")
+    print("\n Extrayendo embeddings del Catálogo de Productos...")
     df_products = pd.read_csv(args.products_csv)
     # Only keep products that actually have images
     valid_products = [
@@ -97,6 +101,7 @@ def main(args):
     
     # 3. Build FAISS Index
     print(f"\n🧠 Construyendo índice FAISS con {len(prod_embeddings)} productos...")
+    print(f"\n Construyendo índice FAISS con {len(prod_embeddings)} productos...")
     faiss.normalize_L2(prod_embeddings)  # Cosine similarity requires L2 normalization
     dim = prod_embeddings.shape[1]
     
@@ -106,6 +111,7 @@ def main(args):
     
     # 4. Extract Bundle Features
     print("\n👗 Extrayendo embeddings de los Test Bundles...")
+    print("\n Extrayendo embeddings de los Test Bundles...")
     df_test = pd.read_csv(args.test_csv)
     test_bundles = df_test['bundle_asset_id'].unique().tolist()
     
@@ -133,6 +139,11 @@ def main(args):
     
     # 6. Generate CSV
     print("\n📝 Escribiendo submission CSV...")
+    print(f"\n Buscando los Top {args.top_k} matches para cada Bundle...")
+    distances, indices = index.search(bundle_embeddings, args.top_k)
+    
+    # 6. Generate CSV
+    print("\n Escribiendo submission CSV...")
     results = []
     for i, bundle_id in enumerate(bundle_ids_list):
         for rank in range(args.top_k):
@@ -146,6 +157,7 @@ def main(args):
     df_submission = pd.DataFrame(results)
     df_submission.to_csv(args.output, index=False)
     print(f"🎉 ÉXITO: Archivo guardado en {args.output}")
+    print(f"INFO: SUCCESS: Archivo guardado en {args.output}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="ConvNeXt Metric Learning Inference")

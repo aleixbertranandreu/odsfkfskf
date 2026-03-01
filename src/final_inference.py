@@ -310,47 +310,47 @@ def run_inference(args):
     ids_path = os.path.join(BASE_DIR, "data", "embeddings", "product_ids.pkl")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"🚀 Inference device: {device}")
+    print(f"INFO: Inference device: {device}")
     if device.type == "cuda":
         print(f"   GPU: {torch.cuda.get_device_name(0)}")
         print(f"   VRAM: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
 
     # ═══ STAGE 1: Load Models ═══
-    print("\n🧠 Loading models...")
+    print("\n Loading models...")
 
     # -- YOLOv8 --
     yolo_path = args.yolo_model or os.path.join(BASE_DIR, "models", "best.pt")
     if os.path.exists(yolo_path):
         yolo_model = YOLO(yolo_path)
-        print(f"   ✅ YOLO: {yolo_path}")
+        print(f"    YOLO: {yolo_path}")
     else:
         yolo_model = YOLO("yolov8n.pt")
-        print(f"   ⚠️  No fashion YOLO found → using generic yolov8n")
+        print(f"   ️  No fashion YOLO found → using generic yolov8n")
 
     # -- ConvNeXt Metric Model (auto-discovery) --
     checkpoint_path = auto_discover_checkpoint(BASE_DIR, args.checkpoint)
 
     if checkpoint_path:
-        print(f"   🔍 Auto-discovered checkpoint: {checkpoint_path}")
+        print(f"    Auto-discovered checkpoint: {checkpoint_path}")
         checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
         embed_dim = checkpoint.get('embed_dim', args.embed_dim)
         metric_model = FashionEmbedder(embed_dim=embed_dim, pretrained=False).to(device)
         metric_model.load_state_dict(checkpoint['model_state_dict'])
         if 'best_mrr' in checkpoint:
-            print(f"   📊 Checkpoint MRR@15: {checkpoint['best_mrr']:.4f}")
+            print(f"    Checkpoint MRR@15: {checkpoint['best_mrr']:.4f}")
         if 'epoch' in checkpoint:
-            print(f"   📊 Trained for: {checkpoint['epoch']} epochs")
+            print(f"    Trained for: {checkpoint['epoch']} epochs")
     else:
-        print(f"   ⚠️  No checkpoint found → using pretrained ConvNeXt (no metric learning)")
+        print(f"   ️  No checkpoint found → using pretrained ConvNeXt (no metric learning)")
         embed_dim = args.embed_dim
         metric_model = FashionEmbedder(embed_dim=embed_dim, pretrained=True).to(device)
 
     metric_model.eval()
 
     # -- FAISS Index --
-    print(f"\n📦 Loading FAISS index...")
+    print(f"\n Loading FAISS index...")
     if not os.path.exists(faiss_path):
-        print(f"   ❌ FAISS index not found at {faiss_path}")
+        print(f"    FAISS index not found at {faiss_path}")
         print(f"   Run build_index.py first!")
         sys.exit(1)
 
@@ -375,7 +375,7 @@ def run_inference(args):
     bundle_ids = df_test['bundle_asset_id'].tolist()
 
     print(f"\n{'═'*60}")
-    print(f"🎯 Processing {len(bundle_ids)} test bundles")
+    print(f"INFO: Processing {len(bundle_ids)} test bundles")
     print(f"   TTA: {'ON (3 views)' if args.use_tta else 'OFF'}")
     print(f"   FAISS depth: Top-{min(FAISS_TOP_K, index.ntotal)}")
     print(f"{'═'*60}\n")
@@ -475,7 +475,7 @@ def run_inference(args):
         except Exception as e:
             errors += 1
             if errors <= 5:
-                print(f"  ❌ Error on {bundle_id}: {e}")
+                print(f"  ERROR: Error on {bundle_id}: {e}")
             results.append((bundle_id, product_ids[:15]))
 
         # Progress bar
@@ -493,13 +493,13 @@ def run_inference(args):
             )
 
     total_time = time.time() - start_time
-    print(f"\n✅ Done! {len(bundle_ids)} bundles in {total_time:.1f}s "
+    print(f"\nINFO: SUCCESS: Done! {len(bundle_ids)} bundles in {total_time:.1f}s "
           f"({len(bundle_ids)/total_time:.1f} b/s)")
     if errors > 0:
-        print(f"   ⚠️  {errors} errors (fallback used)")
+        print(f"   ️  {errors} errors (fallback used)")
 
     # ═══ STAGE 3: Generate Submission CSV ═══
-    print("\n📝 Generating submission CSV...")
+    print("\n Generating submission CSV...")
     rows = []
     for bundle_id, top_15 in results:
         for pid in top_15:
@@ -512,7 +512,7 @@ def run_inference(args):
     # Sanity checks
     n_bundles = df_submission['bundle_asset_id'].nunique()
     avg_products = len(df_submission) / max(n_bundles, 1)
-    print(f"💾 Saved: {output_path}")
+    print(f"INFO: Saved to Saved: {output_path}")
     print(f"   Rows: {len(df_submission)} | Bundles: {n_bundles} | Avg products/bundle: {avg_products:.1f}")
 
     # ═══ STAGE 4: Evaluate ═══
@@ -523,7 +523,7 @@ def run_inference(args):
 def evaluate_mrr(results: list, base_dir: str):
     """Compute MRR@15 using training pairs as proxy ground truth."""
     print(f"\n{'═'*60}")
-    print("📊 MRR@15 Evaluation (on training set overlap)")
+    print("INFO: MRR@15 Evaluation (on training set overlap)")
     print(f"{'═'*60}")
 
     train_csv = os.path.join(base_dir, "data", "raw", "bundles_product_match_train.csv")
@@ -555,13 +555,13 @@ def evaluate_mrr(results: list, base_dir: str):
 
     if total > 0:
         mrr = mrr_sum / total
-        print(f"\n   🏆 MRR@15:  {mrr:.4f}")
-        print(f"   📊 Hit@1:   {hit_at[1]/total:.4f} ({hit_at[1]}/{total})")
-        print(f"   📊 Hit@5:   {hit_at[5]/total:.4f} ({hit_at[5]}/{total})")
-        print(f"   📊 Hit@10:  {hit_at[10]/total:.4f} ({hit_at[10]}/{total})")
-        print(f"   📊 Hit@15:  {hit_at[15]/total:.4f} ({hit_at[15]}/{total})")
+        print(f"\n    MRR@15:  {mrr:.4f}")
+        print(f"    Hit@1:   {hit_at[1]/total:.4f} ({hit_at[1]}/{total})")
+        print(f"    Hit@5:   {hit_at[5]/total:.4f} ({hit_at[5]}/{total})")
+        print(f"    Hit@10:  {hit_at[10]/total:.4f} ({hit_at[10]}/{total})")
+        print(f"    Hit@15:  {hit_at[15]/total:.4f} ({hit_at[15]}/{total})")
     else:
-        print("   ⚠️  No overlap between test and train bundles")
+        print("   ️  No overlap between test and train bundles")
 
 
 # ═════════════════════════════════════════════════════════════════
@@ -570,7 +570,7 @@ def evaluate_mrr(results: list, base_dir: str):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="🏆 Kaggle Grandmaster Inference Pipeline for Inditex Visual Search"
+        description=" Kaggle Grandmaster Inference Pipeline for Inditex Visual Search"
     )
 
     # Model paths

@@ -55,8 +55,8 @@ def main():
     existing = {f.replace('.jpg', '') for f in os.listdir(OUTPUT_DIR) if f.endswith('.jpg')}
     missing = df[~df['product_asset_id'].isin(existing)]
 
-    print(f"📦 Total products: {len(df)}")
-    print(f"✅ Already downloaded: {len(existing)}")
+    print(f"INFO: Total products: {len(df)}")
+    print(f"INFO: SUCCESS: Already downloaded: {len(existing)}")
     print(f"⬇️  To download: {len(missing)}")
 
     if len(missing) == 0:
@@ -85,11 +85,11 @@ def main():
             if (i + 1) % 500 == 0:
                 elapsed = time.time() - start
                 rate = (i + 1) / elapsed
-                print(f"  [{i+1}/{len(futures)}] ✅ {downloaded} ❌ {failed} | {rate:.0f} img/s")
+                print(f"  [{i+1}/{len(futures)}]  {downloaded}  {failed} | {rate:.0f} img/s")
 
     elapsed = time.time() - start
     final_count = len([f for f in os.listdir(OUTPUT_DIR) if f.endswith('.jpg')])
-    print(f"\n🏆 Done in {elapsed:.0f}s")
+    print(f"\nINFO: Done in {elapsed:.0f}s")
     print(f"   Downloaded: {downloaded} | Failed: {failed}")
     print(f"   Total images now: {final_count}/{len(df)}")
 

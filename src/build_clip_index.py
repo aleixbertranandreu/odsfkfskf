@@ -31,7 +31,7 @@ class CLIPCatalogDataset(Dataset):
         for path in all_files:
             pid = os.path.splitext(os.path.basename(path))[0]
             self.items.append((pid, path))
-        print(f"📦 Found {len(self.items)} product images")
+        print(f"INFO: Found {len(self.items)} product images")
 
     def __len__(self):
         return len(self.items)
@@ -64,19 +64,19 @@ def build_index(args):
 
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"🚀 Building CLIP index on: {device} with AMP")
+    print(f"INFO: Building CLIP index on: {device} with AMP")
 
     # Load CLIP
     model_name = args.model_name
-    print(f"🧠 Loading base model {model_name}...")
+    print(f" Loading base model {model_name}...")
     model = CLIPModel.from_pretrained(model_name).to(device)
     processor = CLIPProcessor.from_pretrained(model_name)
     
     if args.custom_weights:
-        print(f"🔄 Loading CUSTOM fine-tuned weights from {args.custom_weights}...")
+        print(f" Loading CUSTOM fine-tuned weights from {args.custom_weights}...")
         checkpoint = torch.load(args.custom_weights, map_location=device, weights_only=False)
         model.load_state_dict(checkpoint['model_state_dict'])
-        print("✅ Custom weights loaded successfully!")
+        print("INFO: SUCCESS: Custom weights loaded successfully!")
         
     model.eval()
 
@@ -91,7 +91,7 @@ def build_index(args):
         collate_fn=collate_fn,
     )
 
-    print(f"🔄 Encoding {len(dataset)} products (bz={args.batch_size}, workers={args.num_workers})")
+    print(f" Encoding {len(dataset)} products (bz={args.batch_size}, workers={args.num_workers})")
     all_embeddings = []
     all_ids = []
     n_corrupt = 0
@@ -127,12 +127,12 @@ def build_index(args):
     elapsed = time.time() - start
     all_embeddings = np.vstack(all_embeddings).astype(np.float32)
     
-    print(f"\n✅ Encoded {len(all_ids)} products in {elapsed:.1f}s")
+    print(f"\nINFO: SUCCESS: Encoded {len(all_ids)} products in {elapsed:.1f}s")
     print(f"   Shape: {all_embeddings.shape}")
     if n_corrupt > 0:
-        print(f"   ⚠️ Skipped {n_corrupt} corrupt")
+        print(f"   ️ Skipped {n_corrupt} corrupt")
 
-    print("🔨 Building FAISS index...")
+    print(" Building FAISS index...")
     dim = all_embeddings.shape[1]
     index = faiss.IndexFlatIP(dim)
     faiss.normalize_L2(all_embeddings)
@@ -146,8 +146,8 @@ def build_index(args):
     with open(ids_path, 'wb') as f:
         pickle.dump(all_ids, f)
 
-    print(f"💾 Saved index to {faiss_path}")
-    print("🏆 Done!")
+    print(f"INFO: Saved to Saved index to {faiss_path}")
+    print("INFO: Done!")
 
 
 if __name__ == "__main__":

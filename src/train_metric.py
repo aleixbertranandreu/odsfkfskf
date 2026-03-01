@@ -125,10 +125,10 @@ def train(args):
     os.makedirs(checkpoint_dir, exist_ok=True)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"🚀 Training on: {device}")
+    print(f"INFO: Training on: {device}")
     
     # ─── Dataset ───
-    print("📊 Loading dataset...")
+    print("INFO: Loading dataset...")
     full_dataset = TripletFashionDataset(
         matches_csv=matches_csv,
         products_csv=products_csv,
@@ -172,7 +172,7 @@ def train(args):
     print(f"   Batch: {args.batch_size} | Effective: {args.batch_size * args.grad_accum}")
     
     # ─── Model ───
-    print("🧠 Building model...")
+    print("INFO: Building model...")
     model = FashionEmbedder(embed_dim=args.embed_dim, pretrained=True).to(device)
     
     # Phase tracking
@@ -198,7 +198,7 @@ def train(args):
             )
             scheduler = CosineAnnealingLR(optimizer, T_max=total_phase1_epochs)
             print(f"\n{'='*60}")
-            print(f"📌 PHASE 1: Training embedding head only ({total_phase1_epochs} epochs)")
+            print(f" PHASE 1: Training embedding head only ({total_phase1_epochs} epochs)")
             print(f"{'='*60}")
         
         elif epoch == total_phase1_epochs:
@@ -212,7 +212,7 @@ def train(args):
             )
             scheduler = CosineAnnealingLR(optimizer, T_max=total_phase2_epochs)
             print(f"\n{'='*60}")
-            print(f"🔥 PHASE 2: Full fine-tuning ({total_phase2_epochs} epochs)")
+            print(f"INFO: PHASE 2: Full fine-tuning ({total_phase2_epochs} epochs)")
             print(f"{'='*60}")
         
         # ─── Training loop ───
@@ -285,10 +285,10 @@ def train(args):
                 'best_mrr': best_mrr,
                 'embed_dim': args.embed_dim,
             }, save_path)
-            print(f"  💾 New best model saved! MRR@15 = {best_mrr:.4f}")
+            print(f"  INFO: Saved to New best model saved! MRR@15 = {best_mrr:.4f}")
         
         if args.quick_test and epoch >= 1:
-            print("⚡ Quick test completed successfully!")
+            print("INFO: Quick test completed successfully!")
             break
     
     # ─── Final save ───
@@ -299,7 +299,7 @@ def train(args):
         'best_mrr': best_mrr,
         'embed_dim': args.embed_dim,
     }, final_path)
-    print(f"\n🏆 Training complete! Best MRR@15: {best_mrr:.4f}")
+    print(f"\nINFO: Training complete! Best MRR@15: {best_mrr:.4f}")
     print(f"   Best model: {os.path.join(checkpoint_dir, 'best_metric_model.pt')}")
     print(f"   Final model: {final_path}")
 

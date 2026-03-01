@@ -48,7 +48,7 @@ def main():
     images_dir = os.path.join(BASE_DIR, "data", "images", "products")
     out_file = os.path.join(BASE_DIR, "data", "product_color_hists.json")
 
-    print("🎨 Iniciando la pre-computación de histogramas de color en local...")
+    print("INFO:Starting local color histogram pre-computation...")
     df = pd.read_csv(products_csv)
     product_ids = df['product_asset_id'].unique()
 
@@ -61,11 +61,11 @@ def main():
             # Convert to list of floats for JSON serialization
             color_dict[str(pid)] = [float(x) for x in hist]
 
-    print(f"\n✅ Guardando {len(color_dict)} histogramas en {out_file}...")
+    print(f"\nINFO: SUCCESS:Saving {len(color_dict)} histogramas en {out_file}...")
     with open(out_file, "w") as f:
         json.dump(color_dict, f)
         
-    print("➡️ Este archivo JSON se subirá a RunPod para saltarnos el cálculo de colores en la inferencia.")
+    print("INFO: This JSON file will be uploaded to RunPod to skip color calculation during inference.")
 
 if __name__ == "__main__":
     main()

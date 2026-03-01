@@ -76,7 +76,7 @@ class FashionEmbedder(nn.Module):
             param.requires_grad = False
         for param in self.embed_head.parameters():
             param.requires_grad = True
-        print("🧊 Backbone FROZEN — training only embed_head")
+        print("INFO: Backbone FROZEN — training only embed_head")
     
     def unfreeze_backbone(self):
         """
@@ -84,7 +84,7 @@ class FashionEmbedder(nn.Module):
         """
         for param in self.backbone.parameters():
             param.requires_grad = True
-        print("🔥 Backbone UNFROZEN — full fine-tuning active")
+        print("INFO: Backbone UNFROZEN — full fine-tuning active")
     
     def get_param_groups(self, lr_backbone: float = 1e-5, lr_head: float = 1e-3):
         """
@@ -105,9 +105,9 @@ if __name__ == "__main__":
     model = FashionEmbedder(embed_dim=256, pretrained=True)
     dummy = torch.randn(4, 3, 224, 224)
     out = model(dummy)
-    print(f"✅ Output shape: {out.shape}")  # Expected: (4, 256)
-    print(f"✅ L2 norm check: {torch.norm(out, dim=1)}")  # Should be ~1.0
+    print(f"INFO: SUCCESS: Output shape: {out.shape}")  # Expected: (4, 256)
+    print(f"INFO: SUCCESS: L2 norm check: {torch.norm(out, dim=1)}")  # Should be ~1.0
     
     total_params = sum(p.numel() for p in model.parameters())
     trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print(f"📊 Total params: {total_params/1e6:.1f}M | Trainable: {trainable/1e6:.1f}M")
+    print(f"INFO: Total params: {total_params/1e6:.1f}M | Trainable: {trainable/1e6:.1f}M")

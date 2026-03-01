@@ -37,7 +37,7 @@ names:
 """
     with open("data/inditex_yolo.yaml", "w") as f:
         f.write(yaml_content)
-    print("✅ Created YOLO config at data/inditex_yolo.yaml")
+    print("INFO: SUCCESS: Created YOLO config at data/inditex_yolo.yaml")
 
 def get_yolo_format(box, img_w, img_h):
     """Convert [xmin, ymin, xmax, ymax] to YOLO [x_center, y_center, width, height] normalized"""
@@ -55,11 +55,11 @@ def get_yolo_format(box, img_w, img_h):
     return [cx/img_w, cy/img_h, bw/img_w, bh/img_h]
 
 def main():
-    print("🚀 Iniciando Auto-Anotación con GroundingDINO...")
+    print("INFO: Iniciando Auto-Anotación con GroundingDINO...")
     setup_directories()
     
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"🖥️ Using device: {device}")
+    print(f"️ Using device: {device}")
     
     model_id = "IDEA-Research/grounding-dino-tiny"
     processor = AutoProcessor.from_pretrained(model_id)
@@ -67,7 +67,7 @@ def main():
     
     # Get all bundles (limit to 1000 for realistic local processing time)
     bundle_files = glob.glob(os.path.join(BUNDLES_DIR, "*.jpg"))[:1000]
-    print(f"📦 Encontrados {len(bundle_files)} bundles para anotar.")
+    print(f"INFO: Encontrados {len(bundle_files)} bundles para anotar.")
     
     annotated_count = 0
     
@@ -119,8 +119,8 @@ def main():
                 
             annotated_count += 1
             
-    print(f"✅ Auto-Anotación completada. {annotated_count} imágenes listas para YOLOv8.")
-    print("➡️ Siguiente paso: yolo task=detect mode=train data=data/inditex_yolo.yaml model=yolov8m.pt epochs=15 imgsz=640")
+    print(f"INFO: SUCCESS: Auto-Anotación completada. {annotated_count} imágenes listas para YOLOv8.")
+    print("INFO: Siguiente paso: yolo task=detect mode=train data=data/inditex_yolo.yaml model=yolov8m.pt epochs=15 imgsz=640")
 
 if __name__ == "__main__":
     main()

@@ -35,3 +35,11 @@ backend/data_clean/embeddings/
 *.png
 *.webp
 
+# yolo
+data/inditex_yolo.yaml
+data/product_color_hists.json
+data/yolo_dataset/
+data/yolo_test_bboxes.json
+intermediate_yolo_color_submission.csv
+intermediate_yolo_color_url_hack_submission.csv
+runs/

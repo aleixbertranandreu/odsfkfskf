@@ -70,7 +70,7 @@ class FullCatalogDataset(Dataset):
             pid = os.path.splitext(basename)[0]  # I_abc123.jpg → I_abc123
             self.items.append((pid, path))
 
-        print(f"📦 Full catalog scan: {len(self.items)} product images found in {images_dir}")
+        print(f"INFO: Full catalog scan: {len(self.items)} product images found in {images_dir}")
 
     def __len__(self):
         return len(self.items)
@@ -134,36 +134,36 @@ def build_index(args):
     os.makedirs(embeddings_dir, exist_ok=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"🚀 Building FULL catalog index on: {device}")
+    print(f"INFO: Building FULL catalog index on: {device}")
 
     # ─── Load model ───
-    print("🧠 Loading trained model...")
+    print("INFO: Loading trained model...")
     checkpoint_path = auto_discover_checkpoint(BASE_DIR, args.checkpoint)
 
     if checkpoint_path:
-        print(f"   🔍 Checkpoint: {checkpoint_path}")
+        print(f"    Checkpoint: {checkpoint_path}")
         checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
         embed_dim = checkpoint.get('embed_dim', args.embed_dim)
         model = FashionEmbedder(embed_dim=embed_dim, pretrained=False).to(device)
         model.load_state_dict(checkpoint['model_state_dict'])
         if 'best_mrr' in checkpoint:
-            print(f"   📊 Model MRR@15: {checkpoint['best_mrr']:.4f}")
+            print(f"    Model MRR@15: {checkpoint['best_mrr']:.4f}")
     else:
-        print(f"   ⚠️  No checkpoint found, using pretrained ConvNeXt")
+        print(f"   ️  No checkpoint found, using pretrained ConvNeXt")
         embed_dim = args.embed_dim
         model = FashionEmbedder(embed_dim=embed_dim, pretrained=True).to(device)
 
     model.eval()
 
     # ─── Load FULL catalog ───
-    print("📦 Scanning full product catalog...")
+    print("INFO: Scanning full product catalog...")
     catalog_ds = FullCatalogDataset(
         images_dir=product_images,
         img_size=args.img_size,
     )
 
     if len(catalog_ds) == 0:
-        print("❌ No product images found! Check the path.")
+        print("ERROR: No product images found! Check the path.")
         sys.exit(1)
 
     catalog_loader = DataLoader(
@@ -176,7 +176,7 @@ def build_index(args):
     )
 
     # ─── Encode all products ───
-    print(f"🔄 Encoding {len(catalog_ds)} products...")
+    print(f" Encoding {len(catalog_ds)} products...")
     all_embeddings = []
     all_ids = []
     n_corrupt = 0
@@ -209,17 +209,17 @@ def build_index(args):
     elapsed = time.time() - start
 
     if len(all_embeddings) == 0:
-        print("❌ No valid embeddings generated!")
+        print("ERROR: No valid embeddings generated!")
         sys.exit(1)
 
     all_embeddings = np.vstack(all_embeddings).astype(np.float32)
-    print(f"\n✅ Encoded {len(all_ids)} products in {elapsed:.1f}s ({len(all_ids)/elapsed:.0f} img/s)")
+    print(f"\nINFO: SUCCESS: Encoded {len(all_ids)} products in {elapsed:.1f}s ({len(all_ids)/elapsed:.0f} img/s)")
     print(f"   Embeddings shape: {all_embeddings.shape}")
     if n_corrupt > 0:
-        print(f"   ⚠️  Skipped {n_corrupt} corrupt/unreadable images")
+        print(f"   ️  Skipped {n_corrupt} corrupt/unreadable images")
 
     # ─── Build FAISS index ───
-    print("🔨 Building FAISS index...")
+    print(" Building FAISS index...")
     dim = all_embeddings.shape[1]
 
     # IndexFlatIP = cosine similarity for L2-normalized vectors
@@ -239,7 +239,7 @@ def build_index(args):
         pickle.dump(all_ids, f)
     np.save(embeddings_path, all_embeddings)
 
-    print(f"\n💾 Saved:")
+    print(f"\n Saved:")
     print(f"   FAISS index:     {faiss_path}")
     print(f"   Product IDs:     {ids_path}")
     print(f"   Raw embeddings:  {embeddings_path}")
@@ -254,16 +254,16 @@ def build_index(args):
         coverage = len(csv_ids & indexed_ids) / len(csv_ids) * 100
         missing = len(csv_ids - indexed_ids)
         extra = len(indexed_ids - csv_ids)
-        print(f"\n📊 Catalog coverage:")
+        print(f"\n Catalog coverage:")
         print(f"   CSV products:    {len(csv_ids)}")
         print(f"   Indexed:         {len(indexed_ids)}")
         print(f"   Coverage:        {coverage:.1f}%")
         if missing > 0:
-            print(f"   ⚠️  Missing:     {missing} (images not downloaded)")
+            print(f"   ️  Missing:     {missing} (images not downloaded)")
         if extra > 0:
             print(f"   ℹ️  Extra:       {extra} (images not in CSV)")
 
-    print(f"\n🏆 Index build complete!")
+    print(f"\nINFO: Index build complete!")
 
 
 def parse_args():

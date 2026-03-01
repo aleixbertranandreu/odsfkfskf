@@ -62,7 +62,7 @@ class InditexPairDataset(Dataset):
         ])
         
         # Verify images exist
-        print("🔍 Verifying images exist...")
+        print("INFO: Verifying images exist...")
         valid_rows = []
         first_mismatch = None
         
@@ -81,13 +81,13 @@ class InditexPairDataset(Dataset):
         
         if not valid_rows and first_mismatch:
             b_p, b_e, p_p, p_e = first_mismatch
-            print(f"⚠️ Debug: Tried to find pairs but failed.")
+            print(f"WARNING: Debug: Tried to find pairs but failed.")
             print(f"   Bundle Path Example: {b_p} ({'OK' if b_e else 'MISSING'})")
             print(f"   Product Path Example: {p_p} ({'OK' if p_e else 'MISSING'})")
             print(f"   Check if folder structure or file extensions match.")
 
         self.df = pd.DataFrame(valid_rows)
-        print(f"📦 Valid training pairs: {len(self.df)}")
+        print(f"INFO: Valid training pairs: {len(self.df)}")
 
     def __len__(self):
         return len(self.df)
@@ -141,18 +141,18 @@ def train_clip(args):
     products_dir = args.products_dir or os.path.join(BASE_DIR, "data", "images", "products")
     
     if not os.path.exists(train_csv):
-        print(f"❌ Error: CSV de entrenamiento no encontrado en {train_csv}")
+        print(f"ERROR: Error: CSV de entrenamiento no encontrado en {train_csv}")
         return
         
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"🚀 Elite Fine-tuning on device: {device}")
+    print(f"INFO: Elite Fine-tuning on device: {device}")
     print(f"   CSV: {train_csv}")
     print(f"   Bundles: {bundles_dir}")
     print(f"   Products: {products_dir}")
     
     # ─── LOAD MODEL ───
     # ... rest remains identical ...
-    print(f"🧠 Loading base model: {args.model_name}")
+    print(f" Loading base model: {args.model_name}")
     model = CLIPModel.from_pretrained(args.model_name).to(device)
     
     # Freeze text encoder
@@ -193,7 +193,7 @@ def train_clip(args):
     ], weight_decay=args.weight_decay)
     
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print(f"🔧 Trainable parameters: {trainable_params:,}")
+    print(f" Trainable parameters: {trainable_params:,}")
 
     # ─── DATASET & LOADER ───
     # drop_last=True ensures consistent InfoNCE batch size behavior
@@ -214,7 +214,7 @@ def train_clip(args):
     os.makedirs(save_path, exist_ok=True)
     model_save_file = os.path.join(save_path, "inditex_fashion_clip.pt")
     
-    print("🔥 Starting Contrastive INFO-NCE Training...")
+    print("INFO: Starting Contrastive INFO-NCE Training...")
     model.train()
     
     for epoch in range(args.epochs):
@@ -256,7 +256,7 @@ def train_clip(args):
             global_step = epoch * len(loader) + batch_idx
             if (global_step + 1) % args.save_every == 0:
                 step_avg = total_loss / (batch_idx + 1)
-                print(f"\n💾 Checkpoint @ step {global_step+1} (Avg Loss: {step_avg:.4f})")
+                print(f"\n Checkpoint @ step {global_step+1} (Avg Loss: {step_avg:.4f})")
                 torch.save({
                     'epoch': epoch,
                     'step': global_step,
@@ -265,7 +265,7 @@ def train_clip(args):
                     'loss': step_avg,
                 }, model_save_file)
 
-    print("✅ Training complete! Rebuild index and run inference next.")
+    print("INFO: SUCCESS: Training complete! Rebuild index and run inference next.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
