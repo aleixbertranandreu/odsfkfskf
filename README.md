@@ -87,11 +87,11 @@ Aunque el núcleo del reto era puramente algorítmico, como reto personal y para
 
 Aquí puedes ver el flujo de la aplicación en funcionamiento:
 
-<div align="center">
-  <img src="docs/assets/scan_ui.png" width="45%" alt="Visual Scan UI" />
+<p align="center">
+  <img src="./docs/assets/scan_ui.png" width="45%" alt="Visual Scan UI" />
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="docs/assets/results_ui.png" width="45%" alt="Search Results UI" />
-</div>
+  <img src="./docs/assets/results_ui.png" width="45%" alt="Search Results UI" />
+</p>
 <br/>
 
 ## Trabajo Futuro
