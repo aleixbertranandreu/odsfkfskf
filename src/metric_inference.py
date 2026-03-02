@@ -58,6 +58,7 @@ def main(args):
     # 1. Load Model
     print(f"\n📦 Cargando pesos de {args.weights}...")
     checkpoint = torch.load(args.weights, map_location=device)
+    checkpoint = torch.load(args.weights, map_location=device, weights_only=False)
     
     # Handle both full state_dict or raw parameter dict
     embed_dim = checkpoint.get('embed_dim', 256)

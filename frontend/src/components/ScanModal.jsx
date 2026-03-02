@@ -49,7 +49,7 @@ export default function ScanModal({ isOpen, onClose }) {
             const formData = new FormData();
             formData.append('file', selectedFile);
 
-            const response = await fetch('http://localhost:8000/api/scan', {
+            const response = await fetch('http://10.20.29.65:8000/api/scan', {
                 method: 'POST',
                 body: formData,
             });
@@ -101,7 +101,7 @@ export default function ScanModal({ isOpen, onClose }) {
 
                     {/* IDLE — Upload */}
                     {state === STATES.IDLE && (
-                        <div className="scan-upload-area">
+                        <label className="scan-upload-area" htmlFor="scan-file-input" style={{ display: 'block', cursor: 'pointer' }}>
                             <input
                                 ref={fileRef}
                                 type="file"
@@ -109,11 +109,12 @@ export default function ScanModal({ isOpen, onClose }) {
                                 onChange={handleFile}
                                 id="scan-file-input"
                                 aria-label="Seleccionar imagen"
+                                style={{ display: 'none' }}
                             />
                             <div className="scan-upload-icon">📷</div>
                             <p className="scan-upload-text">Haz clic o arrastra una imagen aquí</p>
                             <p className="scan-upload-hint">JPG, PNG o WebP — máx. 10MB</p>
-                        </div>
+                        </label>
                     )}
 
                     {/* PREVIEW */}
