@@ -112,6 +112,28 @@ sequenceDiagram
     API-->>User: 8. Renderiza productos recomendados
 ```
 
+### 🚀 Frontend & Backend Web App
+
+Para probar la experiencia de usuario real abriendo la aplicación en tu navegador:
+
+**1. Levantar el Backend (API)**
+Recibirá las fotos y ejecutará el modelo en tiempo real.
+```bash
+cd backend
+source .venv_backend/bin/activate
+uvicorn main:app --reload
+```
+*El backend quedará escuchando en `http://localhost:8000`*
+
+**2. Levantar el Frontend (React/Vite)**
+Abre otra pestaña en tu terminal y ejecuta:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*El frontend quedará accesible en `http://localhost:5173`. Abre esa URL en tu navegador web o accede desde tu móvil en la misma red WiFi.*
+
 ## Trabajo Futuro
 
 Debido a las estrictas limitaciones de tiempo inherentes a un formato de hackathon de 36 horas, varias ideas prometedoras quedaron en el tintero. Nuestro roadmap de mejoras incluye:

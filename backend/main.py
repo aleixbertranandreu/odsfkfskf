@@ -3,12 +3,13 @@ import cv2
 import pickle
 import torch
 import numpy as np
-import open_clip
+from transformers import CLIPModel, CLIPProcessor
 from PIL import Image
 from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from ultralytics import YOLO
+import faiss
 
 app = FastAPI(title="Garment Scanner API")
 
@@ -21,21 +22,22 @@ app.add_middleware(
 )
 
 import os
-IMAGES_DIR = "/home/amaru/Documentos/todoonada/backend/data_clean/images/products"
+IMAGES_DIR = "/home/aleixbertranandreu/Documents/HackUDC_2026/data/images/products"
 if os.path.exists(IMAGES_DIR):
     app.mount("/static_images", StaticFiles(directory=IMAGES_DIR), name="static_images")
 
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-YOLO_MODEL_PATH = "/home/amaru/Documentos/hack/odsfkfskf/data/models/yolo11x-seg.pt"
-CLIP_EMBEDDINGS_PATH = "/home/amaru/Documentos/hack/odsfkfskf/src/products_clip_embeddings.npy"
-CLIP_IDS_PATH = "/home/amaru/Documentos/hack/odsfkfskf/src/products_ids.pkl"
+YOLO_MODEL_PATH = "/home/aleixbertranandreu/Documents/HackUDC_2026/checkpoints/inditex_yolov8m.pt"
+CLIP_EMBEDDINGS_PATH = "/home/aleixbertranandreu/Documents/HackUDC_2026/data/embeddings/clip_faiss_patrickjohncyh_fashion_clip.bin"
+CLIP_IDS_PATH = "/home/aleixbertranandreu/Documents/HackUDC_2026/data/embeddings/clip_ids_patrickjohncyh_fashion_clip.pkl"
+CLIP_MODEL_WEIGHTS = "/home/aleixbertranandreu/Documents/HackUDC_2026/checkpoints/inditex_fashion_clip.pt"
 
 yolo_model = None
 clip_model = None
 clip_preprocess = None
-product_embeddings = None
+faiss_index = None
 product_ids = None
 
 def crop_to_nonzero_region(image_bgr, mask):
@@ -76,19 +78,28 @@ def extract_upper_torso(person_crop, person_mask=None):
 
 @app.on_event("startup")
 def load_models():
-    global yolo_model, clip_model, clip_preprocess, product_embeddings, product_ids
+    global yolo_model, clip_model, clip_preprocess, faiss_index, product_ids
     print(f"Loading models on DEVICE: {DEVICE}")
     try:
         yolo_model = YOLO(YOLO_MODEL_PATH)
         
-        clip_model, _, clip_preprocess = open_clip.create_model_and_transforms("ViT-B-32", pretrained="laion2b_s34b_b79k")
+        clip_model = CLIPModel.from_pretrained("patrickjohncyh/fashion-clip")
+        clip_preprocess = CLIPProcessor.from_pretrained("patrickjohncyh/fashion-clip")
+        
+        if os.path.exists(CLIP_MODEL_WEIGHTS):
+            print(f"Loading custom weights from {CLIP_MODEL_WEIGHTS}")
+            checkpoint = torch.load(CLIP_MODEL_WEIGHTS, map_location=DEVICE, weights_only=False)
+            if 'model_state_dict' in checkpoint:
+                clip_model.load_state_dict(checkpoint['model_state_dict'])
+            else:
+                clip_model.load_state_dict(checkpoint)
+        
         clip_model = clip_model.to(DEVICE)
         clip_model.eval()
         
-        product_embeddings = np.load(CLIP_EMBEDDINGS_PATH)
+        faiss_index = faiss.read_index(CLIP_EMBEDDINGS_PATH)
         with open(CLIP_IDS_PATH, "rb") as f:
             ids_raw = pickle.load(f)
-            # Normalizar los IDs. Vienen tipo 'I_364342df65c9.jpg', los dejamos como '364342df65c9' o guardamos tal cual
             product_ids = [str(x).replace("I_", "").replace(".jpg", "") for x in ids_raw]
             
         print("Models and embeddings loaded successfully.")
@@ -139,25 +150,31 @@ async def scan_garment(request: Request, file: UploadFile = File(...)):
     # 2. CLIP Embedding
     img_rgb = cv2.cvtColor(target_crop, cv2.COLOR_BGR2RGB)
     img_pil = Image.fromarray(img_rgb)
-    img_tensor = clip_preprocess(img_pil).unsqueeze(0).to(DEVICE)
+    
+    inputs = clip_preprocess(images=img_pil, return_tensors="pt").to(DEVICE)
     
     with torch.no_grad():
-        features = clip_model.encode_image(img_tensor)
-        features = features / features.norm(dim=-1, keepdim=True)
+        out = clip_model.vision_model(pixel_values=inputs["pixel_values"])
+        features = clip_model.visual_projection(out.pooler_output)
+        if features.dim() == 2:
+            features = features / torch.norm(features, dim=-1, keepdim=True)
+        else:
+            features = features / features.norm(dim=-1, keepdim=True)
         query_embedding = features.cpu().numpy()[0]
         
-    # 3. Similarity Search
-    similarities = product_embeddings @ query_embedding.T
-    top_indices = np.argsort(similarities)[::-1][:4]
+    # 3. Similarity Search (using FAISS)
+    query_fp32 = np.array([query_embedding], dtype=np.float32)
+    distances, indices = faiss_index.search(query_fp32, 4)
     
     matches = []
-    for idx in top_indices:
+    for i, idx in enumerate(indices[0]):
         matches.append({
             "id": product_ids[idx],
-            "score": float(similarities[idx])
+            "score": float(distances[0][i])
         })
         
     main_match = matches[0]
+    # Distances for IP FAISS metric is the cosine similarity itself since vectors were normalized.
     confidence_scale = int(min(100, max(0, main_match["score"] * 100 * 1.5))) # Arbitrary scale for UI
     
     base_url = str(request.base_url).rstrip("/")

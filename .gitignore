@@ -1,45 +1,66 @@
-# Modelos
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+
+# Models & Checkpoints
 *.pt
 *.pth
 *.bin
 *.onnx
 *.pkl
-
-# Directorios de Modelos
 models/
 checkpoints/
 
-# Datos
-data/images/
-data/dataset_entrenar_IA/
-data/embeddings/
-__pycache__/
-
-# Entornos virtuales
-.venv/
-.cache/
-
-# Índices FAISS
-*.index
-*.bin
-
-#zip del data para trabajar en la nube
+# Data (Large Files)
+data/
 data_clean.zip
-
-# Backend Images
-backend/data_clean/images/
-backend/data_clean/embeddings/
+*.index
+*.csv
+# Keep only specific small CSVs if needed, or ignore all
+!README.md
 *.npy
-*.pt
 *.jpg
 *.png
 *.webp
-
-# yolo
-data/inditex_yolo.yaml
-data/product_color_hists.json
-data/yolo_dataset/
-data/yolo_test_bboxes.json
-intermediate_yolo_color_submission.csv
-intermediate_yolo_color_url_hack_submission.csv
 runs/
+
+# Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+.eslintcache
+
+# Logs
+*.log
+backend/uvicorn.log
+logs/
+
+# OS/IDE
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
